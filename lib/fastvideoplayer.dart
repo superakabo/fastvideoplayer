@@ -40,16 +40,14 @@ class FastVideoPlayer extends HookWidget {
     this.controller,
     this.backgroundColor = Colors.black,
     super.key,
-  });
+  }) : assert(url.length > 0, 'url cannot be an empty string');
 
   VideoPlayerController _createController() {
-    final uri = Uri.parse(url);
-
     if (controller != null) {
       return controller!;
     }
 
-    if (uri.scheme == 'http' || uri.scheme == 'https') {
+    if (url.startsWith('http')) {
       return VideoPlayerController.network(
         url,
         formatHint: formatHint,
@@ -58,7 +56,7 @@ class FastVideoPlayer extends HookWidget {
       );
     }
 
-    if (uri.scheme == 'asset') {
+    if (url.startsWith('asset')) {
       return VideoPlayerController.asset(
         url,
         package: package,
@@ -67,7 +65,7 @@ class FastVideoPlayer extends HookWidget {
     }
 
     return VideoPlayerController.file(
-      File.fromUri(Uri.file(url)),
+      File(url),
       httpHeaders: httpHeaders,
       videoPlayerOptions: videoPlayerOptions,
     );
@@ -102,7 +100,9 @@ class FastVideoPlayer extends HookWidget {
           child: SizedBox(
             width: videoController?.value.size.width ?? 1,
             height: videoController?.value.size.height ?? 1,
-            child: (videoController == null) ? null : VideoPlayer(videoController),
+            child: (videoController == null)
+                ? const Center(child: CircularProgressIndicator.adaptive())
+                : VideoPlayer(videoController),
           ),
         ),
       ),
