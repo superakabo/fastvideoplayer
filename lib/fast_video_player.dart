@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
+import 'src/fast_player_controls.dart';
+
 class FastVideoPlayer extends HookWidget {
   final BoxFit fit;
   final Clip clipBehavior;
@@ -16,11 +18,14 @@ class FastVideoPlayer extends HookWidget {
   final bool autoPlay;
   final Future<ClosedCaptionFile>? closedCaptionFile;
   final Duration captionOffset;
+  final Duration seekTo;
   final VideoPlayerOptions? videoPlayerOptions;
   final VideoPlayerController? controller;
   final Map<String, String> httpHeaders;
   final VideoFormat? formatHint;
   final String? package;
+  final bool showPlayerControls;
+  final ThemeData? theme;
 
   const FastVideoPlayer({
     required this.url,
@@ -33,12 +38,15 @@ class FastVideoPlayer extends HookWidget {
     this.autoPlay = false,
     this.closedCaptionFile,
     this.captionOffset = Duration.zero,
+    this.seekTo = Duration.zero,
     this.videoPlayerOptions,
     this.formatHint,
     this.package,
     this.httpHeaders = const <String, String>{},
     this.controller,
     this.backgroundColor = Colors.black,
+    this.showPlayerControls = true,
+    this.theme,
     super.key,
   }) : assert(url.length > 0, 'url cannot be an empty string');
 
@@ -53,6 +61,7 @@ class FastVideoPlayer extends HookWidget {
         formatHint: formatHint,
         httpHeaders: httpHeaders,
         videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
       );
     }
 
@@ -61,6 +70,7 @@ class FastVideoPlayer extends HookWidget {
         url,
         package: package,
         videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
       );
     }
 
@@ -68,6 +78,7 @@ class FastVideoPlayer extends HookWidget {
       File(url),
       httpHeaders: httpHeaders,
       videoPlayerOptions: videoPlayerOptions,
+      closedCaptionFile: closedCaptionFile,
     );
   }
 
@@ -75,10 +86,11 @@ class FastVideoPlayer extends HookWidget {
     final tmpController = _createController();
 
     tmpController.setCaptionOffset(captionOffset);
-    await tmpController.setClosedCaptionFile(closedCaptionFile);
     await tmpController.setVolume(mute ? 0 : 1);
     await tmpController.setLooping(loop);
+    await tmpController.seekTo(seekTo);
     await tmpController.initialize();
+
     if (autoPlay) await tmpController.play();
 
     return tmpController;
@@ -86,23 +98,41 @@ class FastVideoPlayer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = theme ?? Theme.of(context);
+
     final videoController = useFuture(useMemoized(_initiateController)).data;
     useEffect(() => videoController?.dispose, const []);
 
-    return ColoredBox(
-      color: backgroundColor,
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: FittedBox(
-          fit: fit,
-          alignment: alignment,
-          clipBehavior: clipBehavior,
-          child: SizedBox(
-            width: videoController?.value.size.width ?? 1,
-            height: videoController?.value.size.height ?? 1,
-            child: (videoController == null)
-                ? const Center(child: CircularProgressIndicator.adaptive())
-                : VideoPlayer(videoController),
+    return Theme(
+      data: themeData.copyWith(
+        iconTheme: themeData.iconTheme.copyWith(
+          color: Colors.white,
+        ),
+      ),
+      child: ColoredBox(
+        color: backgroundColor,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              FittedBox(
+                fit: fit,
+                alignment: alignment,
+                clipBehavior: clipBehavior,
+                child: SizedBox(
+                  width: videoController?.value.size.width ?? 1,
+                  height: videoController?.value.size.height ?? 1,
+                  child: (videoController == null)
+                      ? const Center(child: CircularProgressIndicator.adaptive())
+                      : VideoPlayer(videoController),
+                ),
+              ),
+              if (showPlayerControls && videoController != null)
+                FastPlayerControls(
+                  controller: videoController,
+                ),
+            ],
           ),
         ),
       ),

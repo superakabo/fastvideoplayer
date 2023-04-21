@@ -1,6 +1,6 @@
-import 'package:fastvideoplayer/fastvideoplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:fastvideoplayer/fast_video_player.dart';
 
 void main() {
   runApp(const MainApp());
@@ -16,15 +16,19 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.from(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
+          seedColor: Colors.blue,
         ),
       ),
       home: StatefulBuilder(
         builder: (context, StateSetter setState) {
           return Scaffold(
+            backgroundColor: Colors.grey.shade700,
             body: Center(
               child: (filePath.isEmpty)
-                  ? const Text('Select Video')
+                  ? Text(
+                      'Select Video',
+                      style: Theme.of(context).primaryTextTheme.headlineSmall,
+                    )
                   : FastVideoPlayer(
                       key: UniqueKey(),
                       autoPlay: true,
