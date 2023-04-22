@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String filePath = '';
+    String filePath = 'assets/videos/file_example_MP4_480_1_5MG.mp4';
 
     return MaterialApp(
       theme: ThemeData.from(

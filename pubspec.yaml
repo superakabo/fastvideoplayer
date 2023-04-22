@@ -1,5 +1,5 @@
 name: fastvideoplayer
-description: This is the official intuitive video player for FastAd.
+description: This is the official intuitive video player with cache support for FastAd.
 publish_to: 'none'
 version: 0.1.0
 

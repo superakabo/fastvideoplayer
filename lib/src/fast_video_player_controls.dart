@@ -1,36 +1,41 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
-class FastPlayerControls extends StatelessWidget {
-  final VideoPlayerController controller;
+import 'utilities/fast_video_player_strings.dart';
 
-  const FastPlayerControls({
-    required this.controller,
+class FastVideoPlayerControls extends StatelessWidget {
+  final FastVideoPlayerStrings strings;
+  final VideoPlayerController videoController;
+
+  const FastVideoPlayerControls({
+    required this.videoController,
+    required this.strings,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      type: MaterialType.transparency,
-      child: Align(
-        alignment: Alignment.bottomCenter,
+    return Align(
+      alignment: AlignmentDirectional.bottomCenter,
+      child: Material(
+        color: Colors.transparent,
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 4,
           ),
           child: Row(
             children: [
-              _PlayPauseButton(controller),
-              _VolumeButton(controller),
-              _PlaybackTime(controller),
+              _PlayPauseButton(videoController, strings),
+              _VolumeButton(videoController, strings),
+              _PlaybackTime(videoController),
               const Spacer(),
-              _Replay10Button(controller),
-              _Forward10Button(controller),
-              _FullScreenButton(controller),
+              _Replay10Button(videoController, strings),
+              _Forward10Button(videoController, strings),
+              _FullScreenButton(videoController, strings),
             ],
           ),
         ),
@@ -41,25 +46,36 @@ class FastPlayerControls extends StatelessWidget {
 
 class _VolumeButton extends HookWidget {
   final VideoPlayerController controller;
-  const _VolumeButton(this.controller);
+  final FastVideoPlayerStrings strings;
+
+  const _VolumeButton(
+    this.controller,
+    this.strings,
+  );
 
   @override
   Widget build(BuildContext context) {
     final volume = useListenableSelector(controller, () => controller.value.volume);
     final isMuted = (volume == 0.0);
-    final icon = isMuted ? Icons.volume_off : Icons.volume_up;
+    final icon = (isMuted) ? Icons.volume_off : Icons.volume_up;
 
     return IconButton(
       splashRadius: 20,
       icon: Icon(icon),
       onPressed: () => controller.setVolume(isMuted ? 1.0 : 0.0),
+      tooltip: (isMuted) ? strings.unmute : strings.mute,
     );
   }
 }
 
 class _PlayPauseButton extends HookWidget {
   final VideoPlayerController controller;
-  const _PlayPauseButton(this.controller);
+  final FastVideoPlayerStrings strings;
+
+  const _PlayPauseButton(
+    this.controller,
+    this.strings,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +85,8 @@ class _PlayPauseButton extends HookWidget {
     return IconButton(
       splashRadius: 20,
       icon: Icon(icon),
-      onPressed: isPlaying ? controller.pause : controller.play,
+      onPressed: (isPlaying) ? controller.pause : controller.play,
+      tooltip: (isPlaying) ? strings.pause : strings.play,
     );
   }
 }
@@ -97,7 +114,11 @@ class _PlaybackTime extends StatelessWidget {
                 TextSpan(text: totalTime),
               ],
             ),
-            style: theme.primaryTextTheme.titleSmall,
+            style: theme.primaryTextTheme.titleSmall?.copyWith(
+              shadows: [
+                const BoxShadow(blurRadius: 1),
+              ],
+            ),
           ),
         );
       },
@@ -107,13 +128,19 @@ class _PlaybackTime extends StatelessWidget {
 
 class _Replay10Button extends StatelessWidget {
   final VideoPlayerController controller;
-  const _Replay10Button(this.controller);
+  final FastVideoPlayerStrings strings;
+
+  const _Replay10Button(
+    this.controller,
+    this.strings,
+  );
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      splashRadius: 20,
       icon: const Icon(Icons.replay_10),
+      splashRadius: 20,
+      tooltip: strings.replay10Seconds,
       onPressed: () {
         final position = controller.value.position;
         final newPosition = Duration(seconds: max(0, position.inSeconds - 10));
@@ -125,13 +152,19 @@ class _Replay10Button extends StatelessWidget {
 
 class _Forward10Button extends StatelessWidget {
   final VideoPlayerController controller;
-  const _Forward10Button(this.controller);
+  final FastVideoPlayerStrings strings;
+
+  const _Forward10Button(
+    this.controller,
+    this.strings,
+  );
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       splashRadius: 20,
       icon: const Icon(Icons.forward_10),
+      tooltip: strings.forward10Seconds,
       onPressed: () {
         final videoDuration = controller.value.duration.inSeconds;
         final position = controller.value.position;
@@ -144,18 +177,36 @@ class _Forward10Button extends StatelessWidget {
 
 class _FullScreenButton extends HookWidget {
   final VideoPlayerController controller;
-  const _FullScreenButton(this.controller);
+  final FastVideoPlayerStrings strings;
+
+  const _FullScreenButton(
+    this.controller,
+    this.strings,
+  );
 
   @override
   Widget build(BuildContext context) {
-    final isFullScreen = useState(false);
-    final icon = (isFullScreen.value) ? Icons.fullscreen_exit : Icons.fullscreen;
+    final isFullScreenRef = useState(false);
+    final icon = (isFullScreenRef.value) ? Icons.fullscreen_exit : Icons.fullscreen;
 
     return IconButton(
       splashRadius: 20,
       icon: Icon(icon),
+      tooltip: (isFullScreenRef.value) ? strings.exitFullScreen : strings.fullScreen,
       onPressed: () {
-        isFullScreen.value = !isFullScreen.value;
+        isFullScreenRef.value = !isFullScreenRef.value;
+
+        if (isFullScreenRef.value) {
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+        } else {
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]);
+        }
       },
     );
   }
