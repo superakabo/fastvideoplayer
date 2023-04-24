@@ -104,8 +104,17 @@ class FastVideoPlayer extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = theme ?? Theme.of(context);
-    final videoController = useFuture(useMemoized(_initiateController)).data;
-    useEffect(() => videoController?.dispose, const []);
+
+    final videoController = useFuture(
+      useMemoized(_initiateController),
+    ).data;
+
+    useEffect(() {
+      if (controller == null) {
+        return videoController?.dispose;
+      }
+      return null;
+    }, const []);
 
     return Theme(
       data: themeData.copyWith(
@@ -118,7 +127,6 @@ class FastVideoPlayer extends HookWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          print('hello world');
           if (onTap != null) onTap?.call();
         },
         child: Stack(
