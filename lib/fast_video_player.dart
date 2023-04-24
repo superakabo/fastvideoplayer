@@ -28,6 +28,7 @@ class FastVideoPlayer extends HookWidget {
   final ThemeData? theme;
   final bool cacheNetworkVideo;
   final FastVideoPlayerStrings strings;
+  final VoidCallback? onTap;
 
   const FastVideoPlayer({
     required this.url,
@@ -48,6 +49,7 @@ class FastVideoPlayer extends HookWidget {
     this.backgroundColor = Colors.black,
     this.showPlayerControls = true,
     this.theme,
+    this.onTap,
     this.cacheNetworkVideo = true,
     this.strings = const FastVideoPlayerStrings(),
     super.key,
@@ -117,6 +119,7 @@ class FastVideoPlayer extends HookWidget {
       child: GestureDetector(
         onTap: () {
           print('hello world');
+          if (onTap != null) onTap?.call();
         },
         child: Stack(
           fit: StackFit.expand,
