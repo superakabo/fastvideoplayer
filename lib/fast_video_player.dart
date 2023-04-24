@@ -31,7 +31,7 @@ class FastVideoPlayer extends HookWidget {
 
   const FastVideoPlayer({
     required this.url,
-    this.fit = BoxFit.cover,
+    this.fit = BoxFit.none,
     this.clipBehavior = Clip.hardEdge,
     this.alignment = Alignment.center,
     this.mute = false,
@@ -120,6 +120,7 @@ class FastVideoPlayer extends HookWidget {
         },
         child: Stack(
           fit: StackFit.expand,
+          clipBehavior: clipBehavior,
           children: [
             if (videoController == null)
               ColoredBox(

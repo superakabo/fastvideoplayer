@@ -34,6 +34,7 @@ class MainApp extends StatelessWidget {
                       child: FastVideoPlayer(
                         key: UniqueKey(),
                         autoPlay: false,
+                        fit: BoxFit.cover,
                         url: filePath,
                       ),
                     ),
@@ -66,7 +67,6 @@ class MainApp extends StatelessWidget {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {
                       filePath = file.path;
-                      print('file path: ${file.path}');
                       setState(() {});
                     }
                   },
