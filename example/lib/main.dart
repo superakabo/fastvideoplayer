@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String filePath = 'assets/videos/file_example_MP4_480_1_5MG.mp4';
+    String filePath = '';
 
     return MaterialApp(
       theme: ThemeData.from(
@@ -29,10 +29,13 @@ class MainApp extends StatelessWidget {
                       'Select Video',
                       style: Theme.of(context).primaryTextTheme.headlineSmall,
                     )
-                  : FastVideoPlayer(
-                      key: UniqueKey(),
-                      autoPlay: true,
-                      url: filePath,
+                  : AspectRatio(
+                      aspectRatio: 1,
+                      child: FastVideoPlayer(
+                        key: UniqueKey(),
+                        autoPlay: false,
+                        url: filePath,
+                      ),
                     ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -63,6 +66,7 @@ class MainApp extends StatelessWidget {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {
                       filePath = file.path;
+                      print('file path: ${file.path}');
                       setState(() {});
                     }
                   },

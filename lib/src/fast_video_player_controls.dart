@@ -1,19 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
-import 'utilities/fast_video_player_strings.dart';
+import 'fast_video_player_strings.dart';
 
 class FastVideoPlayerControls extends StatelessWidget {
   final FastVideoPlayerStrings strings;
   final VideoPlayerController videoController;
 
-  const FastVideoPlayerControls({
-    required this.videoController,
-    required this.strings,
+  const FastVideoPlayerControls(
+    this.videoController,
+    this.strings, {
     super.key,
   });
 
@@ -22,22 +21,16 @@ class FastVideoPlayerControls extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.bottomCenter,
       child: Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 4,
-          ),
-          child: Row(
-            children: [
-              _PlayPauseButton(videoController, strings),
-              _VolumeButton(videoController, strings),
-              _PlaybackTime(videoController),
-              const Spacer(),
-              _Replay10Button(videoController, strings),
-              _Forward10Button(videoController, strings),
-              _FullScreenButton(videoController, strings),
-            ],
-          ),
+        color: Colors.black.withOpacity(0.01),
+        child: Row(
+          children: [
+            _PlayPauseButton(videoController, strings),
+            _VolumeButton(videoController, strings),
+            _PlaybackTime(videoController),
+            const Spacer(),
+            _Replay10Button(videoController, strings),
+            _Forward10Button(videoController, strings),
+          ],
         ),
       ),
     );
@@ -58,12 +51,13 @@ class _VolumeButton extends HookWidget {
     final volume = useListenableSelector(controller, () => controller.value.volume);
     final isMuted = (volume == 0.0);
     final icon = (isMuted) ? Icons.volume_off : Icons.volume_up;
+    final tooltip = (isMuted) ? strings.unmute : strings.mute;
 
     return IconButton(
       splashRadius: 20,
       icon: Icon(icon),
+      tooltip: tooltip,
       onPressed: () => controller.setVolume(isMuted ? 1.0 : 0.0),
-      tooltip: (isMuted) ? strings.unmute : strings.mute,
     );
   }
 }
@@ -80,13 +74,14 @@ class _PlayPauseButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final isPlaying = useListenableSelector(controller, () => controller.value.isPlaying);
-    final icon = isPlaying ? Icons.pause : Icons.play_arrow;
+    final icon = (isPlaying) ? Icons.pause : Icons.play_arrow;
+    final tooltip = (isPlaying) ? strings.pause : strings.play;
 
     return IconButton(
       splashRadius: 20,
       icon: Icon(icon),
+      tooltip: tooltip,
       onPressed: (isPlaying) ? controller.pause : controller.play,
-      tooltip: (isPlaying) ? strings.pause : strings.play,
     );
   }
 }
@@ -170,43 +165,6 @@ class _Forward10Button extends StatelessWidget {
         final position = controller.value.position;
         final newPosition = Duration(seconds: min(videoDuration, position.inSeconds + 10));
         controller.seekTo(newPosition);
-      },
-    );
-  }
-}
-
-class _FullScreenButton extends HookWidget {
-  final VideoPlayerController controller;
-  final FastVideoPlayerStrings strings;
-
-  const _FullScreenButton(
-    this.controller,
-    this.strings,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final isFullScreenRef = useState(false);
-    final icon = (isFullScreenRef.value) ? Icons.fullscreen_exit : Icons.fullscreen;
-
-    return IconButton(
-      splashRadius: 20,
-      icon: Icon(icon),
-      tooltip: (isFullScreenRef.value) ? strings.exitFullScreen : strings.fullScreen,
-      onPressed: () {
-        isFullScreenRef.value = !isFullScreenRef.value;
-
-        if (isFullScreenRef.value) {
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ]);
-        } else {
-          SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ]);
-        }
       },
     );
   }

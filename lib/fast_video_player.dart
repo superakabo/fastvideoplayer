@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
 import 'src/fast_video_player_controls.dart';
-import 'src/utilities/fast_video_player_strings.dart';
+import 'src/fast_video_player_strings.dart';
 
 class FastVideoPlayer extends HookWidget {
   final BoxFit fit;
@@ -32,7 +32,7 @@ class FastVideoPlayer extends HookWidget {
   const FastVideoPlayer({
     required this.url,
     this.fit = BoxFit.cover,
-    this.clipBehavior = Clip.none,
+    this.clipBehavior = Clip.hardEdge,
     this.alignment = Alignment.center,
     this.mute = false,
     this.loop = true,
@@ -114,32 +114,38 @@ class FastVideoPlayer extends HookWidget {
           ],
         ),
       ),
-      child: ColoredBox(
-        color: backgroundColor,
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
+      child: GestureDetector(
+        onTap: () {
+          print('hello world');
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (videoController == null)
+              ColoredBox(
+                color: backgroundColor,
+                child: const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
+              )
+            else ...[
               FittedBox(
                 fit: fit,
                 alignment: alignment,
                 clipBehavior: clipBehavior,
                 child: SizedBox(
-                  width: videoController?.value.size.width ?? 1,
-                  height: videoController?.value.size.height ?? 1,
-                  child: (videoController == null)
-                      ? const Center(child: CircularProgressIndicator.adaptive())
-                      : VideoPlayer(videoController),
+                  width: videoController.value.size.width,
+                  height: videoController.value.size.height,
+                  child: VideoPlayer(videoController),
                 ),
               ),
-              if (showPlayerControls && videoController != null)
+              if (showPlayerControls)
                 FastVideoPlayerControls(
-                  videoController: videoController,
-                  strings: strings,
+                  videoController,
+                  strings,
                 ),
-            ],
-          ),
+            ]
+          ],
         ),
       ),
     );
