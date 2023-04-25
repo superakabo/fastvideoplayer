@@ -11,42 +11,36 @@ class FastVideoPlayerController extends VideoPlayerController {
     VideoPlayerOptions? videoPlayerOptions,
     Map<String, String> httpHeaders = const <String, String>{},
   }) {
-    assert(uri.scheme.isNotEmpty, 'uri cannot be an empty string');
-    assert(uri.path.isNotEmpty, 'uri path cannot be an empty string');
+    assert(uri.toString().isNotEmpty, 'uri cannot be an empty string');
 
-    switch (uri.scheme) {
-      case 'file':
-        return FastVideoPlayerController.file(
-          File(uri.path),
-          httpHeaders: httpHeaders,
-          videoPlayerOptions: videoPlayerOptions,
-          closedCaptionFile: closedCaptionFile,
-        );
-
-      case 'asset':
-        return FastVideoPlayerController.asset(
-          uri.toString(),
-          package: package,
-          videoPlayerOptions: videoPlayerOptions,
-          closedCaptionFile: closedCaptionFile,
-        );
-
-      case 'http':
-      case 'https':
-        return FastVideoPlayerController.network(
-          uri.toString(),
-          formatHint: formatHint,
-          httpHeaders: httpHeaders,
-          videoPlayerOptions: videoPlayerOptions,
-          closedCaptionFile: closedCaptionFile,
-        );
-
-      default:
-        return FastVideoPlayerController.contentUri(
-          uri,
-          videoPlayerOptions: videoPlayerOptions,
-          closedCaptionFile: closedCaptionFile,
-        );
+    if (uri.toString().startsWith('file')) {
+      return FastVideoPlayerController.file(
+        File(uri.path),
+        httpHeaders: httpHeaders,
+        videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
+      );
+    } else if (uri.toString().startsWith('asset')) {
+      return FastVideoPlayerController.asset(
+        uri.toString(),
+        package: package,
+        videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
+      );
+    } else if (uri.toString().startsWith('http')) {
+      return FastVideoPlayerController.network(
+        uri.toString(),
+        formatHint: formatHint,
+        httpHeaders: httpHeaders,
+        videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
+      );
+    } else {
+      return FastVideoPlayerController.contentUri(
+        uri,
+        videoPlayerOptions: videoPlayerOptions,
+        closedCaptionFile: closedCaptionFile,
+      );
     }
   }
 

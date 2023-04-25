@@ -52,7 +52,8 @@ class MainApp extends StatelessWidget {
                   heroTag: 'Asset',
                   label: const Text('Load Asset Video'),
                   onPressed: () => setState(() {
-                    controller = FastVideoPlayerController(Uri.parse('assets/videos/file_example_MP4_480_1_5MG.mp4'));
+                    final uri = Uri.parse('assets/videos/file_example_MP4_480_1_5MG.mp4');
+                    controller = FastVideoPlayerController(uri);
                   }),
                 ),
                 FloatingActionButton.extended(
