@@ -24,6 +24,7 @@ class FastVideoPlayer extends HookWidget {
   final bool cacheVideo;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
+  final Widget? placeholder;
   final bool autoDispose;
 
   const FastVideoPlayer({
@@ -41,6 +42,7 @@ class FastVideoPlayer extends HookWidget {
     this.cacheVideo = true,
     this.strings = const FastVideoPlayerStrings(),
     this.autoDispose = false,
+    this.placeholder,
     super.key,
   });
 
@@ -86,11 +88,9 @@ class FastVideoPlayer extends HookWidget {
           fit: StackFit.expand,
           clipBehavior: clipBehavior,
           children: [
-            if (videoController == null)
-              const Center(
-                child: CircularProgressIndicator.adaptive(),
-              )
-            else ...[
+            if (videoController == null) ...[
+              if (placeholder != null) placeholder!,
+            ] else ...[
               FittedBox(
                 fit: fit,
                 alignment: alignment,
