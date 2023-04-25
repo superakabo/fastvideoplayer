@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String filePath = '';
+    var controller = FastVideoPlayerController.asset('assets/videos/file_example_MP4_480_1_5MG.mp4');
 
     return MaterialApp(
       theme: ThemeData.from(
@@ -24,20 +24,16 @@ class MainApp extends StatelessWidget {
           return Scaffold(
             backgroundColor: Colors.grey.shade700,
             body: Center(
-              child: (filePath.isEmpty)
-                  ? Text(
-                      'Select Video',
-                      style: Theme.of(context).primaryTextTheme.headlineSmall,
-                    )
-                  : AspectRatio(
-                      aspectRatio: 1,
-                      child: FastVideoPlayer(
-                        key: UniqueKey(),
-                        autoPlay: false,
-                        fit: BoxFit.cover,
-                        url: filePath,
-                      ),
-                    ),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: FastVideoPlayer(
+                  key: UniqueKey(),
+                  autoPlay: false,
+                  fit: BoxFit.cover,
+                  autoDispose: true,
+                  controller: controller,
+                ),
+              ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
             floatingActionButton: Wrap(
@@ -47,18 +43,17 @@ class MainApp extends StatelessWidget {
                 FloatingActionButton.extended(
                   heroTag: 'Network',
                   label: const Text('Load Network Video'),
-                  onPressed: () {
-                    filePath = 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4';
-                    setState(() {});
-                  },
+                  onPressed: () => setState(() {
+                    controller = FastVideoPlayerController(
+                        Uri.parse('https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4'));
+                  }),
                 ),
                 FloatingActionButton.extended(
                   heroTag: 'Asset',
                   label: const Text('Load Asset Video'),
-                  onPressed: () {
-                    filePath = 'assets/videos/file_example_MP4_480_1_5MG.mp4';
-                    setState(() {});
-                  },
+                  onPressed: () => setState(() {
+                    controller = FastVideoPlayerController(Uri.parse('assets/videos/file_example_MP4_480_1_5MG.mp4'));
+                  }),
                 ),
                 FloatingActionButton.extended(
                   heroTag: 'File',
@@ -66,8 +61,9 @@ class MainApp extends StatelessWidget {
                   onPressed: () async {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {
-                      filePath = file.path;
-                      setState(() {});
+                      setState(() {
+                        controller = FastVideoPlayerController(Uri.file(file.path));
+                      });
                     }
                   },
                 ),
