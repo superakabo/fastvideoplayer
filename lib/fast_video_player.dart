@@ -29,6 +29,7 @@ class FastVideoPlayer extends HookWidget {
   final bool cacheNetworkVideo;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
+  final bool keepAlive;
 
   const FastVideoPlayer({
     required this.url,
@@ -52,6 +53,7 @@ class FastVideoPlayer extends HookWidget {
     this.onTap,
     this.cacheNetworkVideo = true,
     this.strings = const FastVideoPlayerStrings(),
+    this.keepAlive = false,
     super.key,
   }) : assert(url.length > 0, 'url cannot be an empty string');
 
@@ -108,6 +110,8 @@ class FastVideoPlayer extends HookWidget {
     final videoController = useFuture(
       useMemoized(_initiateController),
     ).data;
+
+    useAutomaticKeepAlive(wantKeepAlive: keepAlive);
 
     useEffect(() {
       if (controller == null) {
