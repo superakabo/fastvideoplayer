@@ -15,11 +15,9 @@ class FastVideoPlayerController extends VideoPlayerController {
     assert(uri.path.isNotEmpty, 'uri path cannot be an empty string');
 
     switch (uri.scheme) {
-      case 'http':
-      case 'https':
-        return FastVideoPlayerController.network(
-          uri.toString(),
-          formatHint: formatHint,
+      case 'file':
+        return FastVideoPlayerController.file(
+          File(uri.toString()),
           httpHeaders: httpHeaders,
           videoPlayerOptions: videoPlayerOptions,
           closedCaptionFile: closedCaptionFile,
@@ -33,10 +31,19 @@ class FastVideoPlayerController extends VideoPlayerController {
           closedCaptionFile: closedCaptionFile,
         );
 
-      default:
-        return FastVideoPlayerController.file(
-          File(uri.toString()),
+      case 'http':
+      case 'https':
+        return FastVideoPlayerController.network(
+          uri.toString(),
+          formatHint: formatHint,
           httpHeaders: httpHeaders,
+          videoPlayerOptions: videoPlayerOptions,
+          closedCaptionFile: closedCaptionFile,
+        );
+
+      default:
+        return FastVideoPlayerController.contentUri(
+          uri,
           videoPlayerOptions: videoPlayerOptions,
           closedCaptionFile: closedCaptionFile,
         );
@@ -77,6 +84,16 @@ class FastVideoPlayerController extends VideoPlayerController {
   }) : super.asset(
           dataSource,
           package: package,
+          closedCaptionFile: closedCaptionFile,
+          videoPlayerOptions: videoPlayerOptions,
+        );
+
+  FastVideoPlayerController.contentUri(
+    Uri contentUri, {
+    Future<ClosedCaptionFile>? closedCaptionFile,
+    VideoPlayerOptions? videoPlayerOptions,
+  }) : super.contentUri(
+          contentUri,
           closedCaptionFile: closedCaptionFile,
           videoPlayerOptions: videoPlayerOptions,
         );

@@ -49,6 +49,7 @@ class FastVideoPlayer extends HookWidget {
   });
 
   Future<VideoPlayerController> _initiateController() async {
+    print('loading url -> ${controller.dataSource}');
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
