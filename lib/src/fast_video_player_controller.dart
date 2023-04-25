@@ -17,7 +17,7 @@ class FastVideoPlayerController extends VideoPlayerController {
     switch (uri.scheme) {
       case 'file':
         return FastVideoPlayerController.file(
-          File(uri.toString()),
+          File(uri.path),
           httpHeaders: httpHeaders,
           videoPlayerOptions: videoPlayerOptions,
           closedCaptionFile: closedCaptionFile,

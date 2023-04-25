@@ -21,11 +21,9 @@ class FastVideoPlayer extends HookWidget {
   final Duration captionOffset;
   final Duration seekTo;
   final bool showPlayerControls;
-  final ThemeData? theme;
   final bool cacheVideo;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
-  final bool keepAlive;
   final bool autoDispose;
 
   const FastVideoPlayer({
@@ -39,17 +37,14 @@ class FastVideoPlayer extends HookWidget {
     this.captionOffset = Duration.zero,
     this.seekTo = Duration.zero,
     this.showPlayerControls = true,
-    this.theme,
     this.onTap,
     this.cacheVideo = true,
     this.strings = const FastVideoPlayerStrings(),
-    this.keepAlive = false,
     this.autoDispose = false,
     super.key,
   });
 
   Future<VideoPlayerController> _initiateController() async {
-    print('loading url -> ${controller.dataSource}');
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
@@ -61,13 +56,11 @@ class FastVideoPlayer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = theme ?? Theme.of(context);
+    final theme = Theme.of(context);
 
     final videoController = useFuture(
       useMemoized(_initiateController),
     ).data;
-
-    useAutomaticKeepAlive(wantKeepAlive: keepAlive);
 
     useEffect(() {
       if (autoDispose) {
@@ -77,8 +70,8 @@ class FastVideoPlayer extends HookWidget {
     }, const []);
 
     return Theme(
-      data: themeData.copyWith(
-        iconTheme: themeData.iconTheme.copyWith(
+      data: theme.copyWith(
+        iconTheme: theme.iconTheme.copyWith(
           color: Colors.white,
           shadows: [
             const BoxShadow(blurRadius: 1),
@@ -94,11 +87,8 @@ class FastVideoPlayer extends HookWidget {
           clipBehavior: clipBehavior,
           children: [
             if (videoController == null)
-              ColoredBox(
-                color: themeData.colorScheme.tertiaryContainer,
-                child: const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+              const Center(
+                child: CircularProgressIndicator.adaptive(),
               )
             else ...[
               FittedBox(
