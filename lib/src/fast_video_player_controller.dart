@@ -20,14 +20,18 @@ class FastVideoPlayerController extends VideoPlayerController {
         videoPlayerOptions: videoPlayerOptions,
         closedCaptionFile: closedCaptionFile,
       );
-    } else if (uri.toString().startsWith('asset')) {
+    }
+
+    if (uri.toString().startsWith('asset')) {
       return FastVideoPlayerController.asset(
         uri.toString(),
         package: package,
         videoPlayerOptions: videoPlayerOptions,
         closedCaptionFile: closedCaptionFile,
       );
-    } else if (uri.toString().startsWith('http')) {
+    }
+
+    if (uri.toString().startsWith('http')) {
       return FastVideoPlayerController.network(
         uri.toString(),
         formatHint: formatHint,
@@ -35,13 +39,13 @@ class FastVideoPlayerController extends VideoPlayerController {
         videoPlayerOptions: videoPlayerOptions,
         closedCaptionFile: closedCaptionFile,
       );
-    } else {
-      return FastVideoPlayerController.contentUri(
-        uri,
-        videoPlayerOptions: videoPlayerOptions,
-        closedCaptionFile: closedCaptionFile,
-      );
     }
+
+    return FastVideoPlayerController.contentUri(
+      uri,
+      videoPlayerOptions: videoPlayerOptions,
+      closedCaptionFile: closedCaptionFile,
+    );
   }
 
   FastVideoPlayerController.network(
