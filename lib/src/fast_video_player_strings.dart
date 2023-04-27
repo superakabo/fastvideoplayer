@@ -11,12 +11,12 @@ class FastVideoPlayerStrings {
   const FastVideoPlayerStrings({
     this.play = 'Play',
     this.pause = 'Pause',
-    this.fullScreen = 'Mute',
-    this.exitFullScreen = 'Unmute',
-    this.forward10Seconds = 'Full screen',
-    this.replay10Seconds = 'Exit full screen',
-    this.mute = 'Forward 10 seconds',
-    this.unmute = 'Replay 10 seconds',
+    this.fullScreen = 'Full screen',
+    this.exitFullScreen = 'Exit full screen',
+    this.forward10Seconds = 'Forward 10 seconds',
+    this.replay10Seconds = 'Replay 10 seconds',
+    this.mute = 'Mute',
+    this.unmute = 'Unmute',
   });
 
   FastVideoPlayerStrings copyWith({
