@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
-import 'src/fast_video_player_controller.dart';
 import 'src/fast_video_player_controls.dart';
 import 'src/fast_video_player_strings.dart';
 
-export 'src/fast_video_player_controller.dart';
 export 'src/fast_video_player_controls.dart';
 export 'src/fast_video_player_strings.dart';
+export 'src/fast_video_player_controller.dart';
 
 class FastVideoPlayer extends HookWidget {
-  final FastVideoPlayerController controller;
+  final VideoPlayerController controller;
   final BoxFit fit;
   final Clip clipBehavior;
   final AlignmentGeometry alignment;
@@ -21,10 +20,9 @@ class FastVideoPlayer extends HookWidget {
   final Duration captionOffset;
   final Duration seekTo;
   final bool showPlayerControls;
-  final bool cacheVideo;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
-  final Widget? placeholder;
+  final Widget Function(double?)? placeholder;
   final bool autoDispose;
 
   const FastVideoPlayer({
@@ -39,7 +37,6 @@ class FastVideoPlayer extends HookWidget {
     this.seekTo = Duration.zero,
     this.showPlayerControls = true,
     this.onTap,
-    this.cacheVideo = true,
     this.strings = const FastVideoPlayerStrings(),
     this.autoDispose = false,
     this.placeholder,
@@ -89,7 +86,7 @@ class FastVideoPlayer extends HookWidget {
           clipBehavior: clipBehavior,
           children: [
             if (videoController == null) ...[
-              if (placeholder != null) placeholder!,
+              if (placeholder != null) placeholder!(0),
             ] else ...[
               FittedBox(
                 fit: fit,

@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   video_player: ^2.6.1
   flutter_hooks: ^0.18.6
+  flutter_cache_manager: ^3.3.0
 
 dev_dependencies:
   flutter_test:

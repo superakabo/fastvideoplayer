@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fastvideoplayer/fast_video_player.dart';
 
@@ -23,7 +24,8 @@ class MainApp extends StatelessWidget {
         builder: (context, StateSetter setState) {
           return Scaffold(
             backgroundColor: Colors.grey.shade700,
-            body: Center(
+            body: Align(
+              alignment: Alignment.topCenter,
               child: AspectRatio(
                 aspectRatio: 1,
                 child: FastVideoPlayer(
@@ -44,16 +46,27 @@ class MainApp extends StatelessWidget {
                   heroTag: 'Network',
                   label: const Text('Load Network Video'),
                   onPressed: () => setState(() {
-                    controller = FastVideoPlayerController(
-                        Uri.parse('https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4'));
+                    controller = FastVideoPlayerController.network(
+                      'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+                    );
+                  }),
+                ),
+                FloatingActionButton.extended(
+                  heroTag: 'Cached Network',
+                  label: const Text('Cached Network Video'),
+                  onPressed: () => setState(() {
+                    controller = FastVideoPlayerController.cached(
+                      'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+                    );
                   }),
                 ),
                 FloatingActionButton.extended(
                   heroTag: 'Asset',
                   label: const Text('Load Asset Video'),
                   onPressed: () => setState(() {
-                    final uri = Uri.parse('assets/videos/file_example_MP4_480_1_5MG.mp4');
-                    controller = FastVideoPlayerController(uri);
+                    controller = FastVideoPlayerController.asset(
+                      'assets/videos/file_example_MP4_480_1_5MG.mp4',
+                    );
                   }),
                 ),
                 FloatingActionButton.extended(
@@ -63,9 +76,17 @@ class MainApp extends StatelessWidget {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {
                       setState(() {
-                        controller = FastVideoPlayerController(Uri.file(file.path));
+                        controller = FastVideoPlayerController.file(file.path);
                       });
                     }
+                  },
+                ),
+                FloatingActionButton.extended(
+                  heroTag: 'Clear Cache',
+                  label: const Text('Clear Cached Videos'),
+                  onPressed: () async {
+                    await DefaultCacheManager().emptyCache();
+                    debugPrint('Cached videos cleared');
                   },
                 ),
               ],
