@@ -34,6 +34,14 @@ class MainApp extends StatelessWidget {
                   fit: BoxFit.cover,
                   autoDispose: true,
                   controller: controller,
+                  placeholder: (progress) {
+                    return Center(
+                      child: CircularProgressIndicator.adaptive(
+                        backgroundColor: Colors.white12,
+                        value: progress,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -57,7 +65,7 @@ class MainApp extends StatelessWidget {
                   onPressed: () => setState(() {
                     controller = FastVideoPlayerController.network(
                       cache: true,
-                      'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+                      'https://download.samplelib.com/mp4/sample-5s.mp4',
                     );
                   }),
                 ),

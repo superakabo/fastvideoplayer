@@ -71,36 +71,22 @@ class FastVideoPlayerController extends VideoPlayerController {
   DataSourceType _dataSourceType;
 
   void _cacheVideo() {
-    FileInfo? cachedFile;
-
     final stream = cacheManager.getFileStream(
       dataSource,
       headers: httpHeaders,
       withProgress: true,
     );
 
-    void onDone() {
-      _downloadStream?.cancel();
-      if (cachedFile != null) {
-        _initializeCachedVideo(cachedFile!);
-      }
-    }
-
-    void onData(FileResponse response) {
+    _downloadStream = stream.listen((response) {
       if (response is FileInfo) {
-        cachedFile = response;
+        _downloadStream?.cancel();
+        _initializeCachedVideo(response);
       }
 
       if (response is DownloadProgress) {
         cacheProgressNotifier.value = response.progress;
       }
-    }
-
-    _downloadStream = stream.listen(
-      onData,
-      onDone: onDone,
-      cancelOnError: true,
-    );
+    });
   }
 
   /// Mark: Wait for the precaching to complete and set the cached file path
