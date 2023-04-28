@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
+import 'src/fast_video_player_controller.dart';
 import 'src/fast_video_player_controls.dart';
 import 'src/fast_video_player_strings.dart';
 
@@ -10,7 +11,7 @@ export 'src/fast_video_player_strings.dart';
 export 'src/fast_video_player_controller.dart';
 
 class FastVideoPlayer extends HookWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   final BoxFit fit;
   final Clip clipBehavior;
   final AlignmentGeometry alignment;
@@ -86,7 +87,13 @@ class FastVideoPlayer extends HookWidget {
           clipBehavior: clipBehavior,
           children: [
             if (videoController == null) ...[
-              if (placeholder != null) placeholder!(0),
+              if (placeholder != null)
+                ValueListenableBuilder<double?>(
+                  valueListenable: controller.cacheProgressNotifier,
+                  builder: (_, progress, __) {
+                    return placeholder!(progress);
+                  },
+                ),
             ] else ...[
               FittedBox(
                 fit: fit,

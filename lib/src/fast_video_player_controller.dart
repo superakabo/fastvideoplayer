@@ -6,27 +6,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:video_player/video_player.dart';
 
 class FastVideoPlayerController extends VideoPlayerController {
-  FastVideoPlayerController.cached(
-    this._dataSource, {
-    VideoFormat? formatHint,
-    Future<ClosedCaptionFile>? closedCaptionFile,
-    VideoPlayerOptions? videoPlayerOptions,
-    Map<String, String> httpHeaders = const <String, String>{},
-  })  : _dataSourceType = DataSourceType.network,
-        super.network(
-          _dataSource,
-          formatHint: formatHint,
-          closedCaptionFile: closedCaptionFile,
-          videoPlayerOptions: videoPlayerOptions,
-          httpHeaders: httpHeaders,
-        );
-
   FastVideoPlayerController.asset(
     this._dataSource, {
     String? package,
     Future<ClosedCaptionFile>? closedCaptionFile,
     VideoPlayerOptions? videoPlayerOptions,
   })  : _dataSourceType = DataSourceType.asset,
+        cache = false,
         super.asset(
           _dataSource,
           package: package,
@@ -40,6 +26,7 @@ class FastVideoPlayerController extends VideoPlayerController {
     VideoPlayerOptions? videoPlayerOptions,
     Map<String, String> httpHeaders = const <String, String>{},
   })  : _dataSourceType = DataSourceType.file,
+        cache = false,
         super.file(
           File(_dataSource),
           closedCaptionFile: closedCaptionFile,
@@ -49,6 +36,7 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   FastVideoPlayerController.network(
     this._dataSource, {
+    this.cache = false,
     VideoFormat? formatHint,
     Future<ClosedCaptionFile>? closedCaptionFile,
     VideoPlayerOptions? videoPlayerOptions,
@@ -64,6 +52,9 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   final cacheManager = DefaultCacheManager();
   final cacheProgressNotifier = ValueNotifier<double?>(null);
+
+  /// Mark: cache network video.
+  final bool cache;
 
   /// Mark: Reference object for the cache download stream.
   /// Used to dispose the stream subscription.
@@ -92,7 +83,6 @@ class FastVideoPlayerController extends VideoPlayerController {
       _downloadStream?.cancel();
       if (cachedFile != null) {
         _initializeCachedVideo(cachedFile!);
-        print('done caching');
       }
     }
 
@@ -128,24 +118,23 @@ class FastVideoPlayerController extends VideoPlayerController {
     _cacheVideo();
     await super.initialize();
     value = value.copyWith(duration: Duration.zero, isInitialized: false);
-    print('done initializing');
     return;
   }
 
   @override
   Future<void> initialize() async {
     // Mark: first check and use cached file as the dataSource if it exists.
-    final fileInfo = await cacheManager.getFileFromCache(dataSource);
-    print('dataSource: $dataSource');
-    print('cached file: ${fileInfo?.file.absolute.path}');
-    return (fileInfo == null) ? _precacheAndRenderFirstFrame() : _initializeCachedVideo(fileInfo);
+    if (cache) {
+      final fileInfo = await cacheManager.getFileFromCache(dataSource);
+      return (fileInfo == null) ? _precacheAndRenderFirstFrame() : _initializeCachedVideo(fileInfo);
+    }
+    return super.initialize();
   }
 
   @override
   Future<void> dispose() {
     cacheManager.dispose();
     cacheProgressNotifier.dispose();
-    print('disposed cached controller');
     return super.dispose();
   }
 }

@@ -55,7 +55,8 @@ class MainApp extends StatelessWidget {
                   heroTag: 'Cached Network',
                   label: const Text('Cached Network Video'),
                   onPressed: () => setState(() {
-                    controller = FastVideoPlayerController.cached(
+                    controller = FastVideoPlayerController.network(
+                      cache: true,
                       'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
                     );
                   }),
