@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fastvideoplayer/fast_video_player.dart';
 
@@ -94,7 +93,7 @@ class MainApp extends StatelessWidget {
                   heroTag: 'Clear Cache',
                   label: const Text('Clear Cached Videos'),
                   onPressed: () async {
-                    await DefaultCacheManager().emptyCache();
+                    await controller.cacheManager.emptyCache();
                     debugPrint('Cached videos cleared');
                   },
                 ),

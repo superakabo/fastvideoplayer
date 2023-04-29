@@ -119,7 +119,6 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   @override
   Future<void> dispose() {
-    cacheManager.dispose();
     cacheProgressNotifier.dispose();
     return super.dispose();
   }

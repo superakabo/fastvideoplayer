@@ -44,29 +44,23 @@ class FastVideoPlayer extends HookWidget {
     super.key,
   });
 
-  Future<VideoPlayerController> _initiateController() async {
+  Future<void> _initiateController() async {
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
     await controller.seekTo(seekTo);
     await controller.initialize();
     if (autoPlay) await controller.play();
-    return controller;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    final videoController = useFuture(
-      useMemoized(_initiateController),
-    ).data;
+    final isInitialized = useListenableSelector(controller, () => controller.value.isInitialized);
 
     useEffect(() {
-      if (autoDispose) {
-        return videoController?.dispose;
-      }
-      return null;
+      _initiateController();
+      return (autoDispose) ? controller.dispose : null;
     }, const []);
 
     return Theme(
@@ -86,29 +80,29 @@ class FastVideoPlayer extends HookWidget {
           fit: StackFit.expand,
           clipBehavior: clipBehavior,
           children: [
-            if (videoController == null) ...[
+            FittedBox(
+              fit: fit,
+              alignment: alignment,
+              clipBehavior: clipBehavior,
+              child: SizedBox(
+                width: controller.value.size.width,
+                height: controller.value.size.height,
+                child: VideoPlayer(controller),
+              ),
+            ),
+            if (isInitialized) ...[
+              if (showPlayerControls)
+                FastVideoPlayerControls(
+                  controller,
+                  strings,
+                ),
+            ] else ...[
               if (placeholder != null)
                 ValueListenableBuilder<double?>(
                   valueListenable: controller.cacheProgressNotifier,
                   builder: (_, progress, __) {
                     return placeholder!(progress);
                   },
-                ),
-            ] else ...[
-              FittedBox(
-                fit: fit,
-                alignment: alignment,
-                clipBehavior: clipBehavior,
-                child: SizedBox(
-                  width: videoController.value.size.width,
-                  height: videoController.value.size.height,
-                  child: VideoPlayer(videoController),
-                ),
-              ),
-              if (showPlayerControls)
-                FastVideoPlayerControls(
-                  videoController,
-                  strings,
                 ),
             ]
           ],
