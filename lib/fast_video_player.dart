@@ -20,7 +20,6 @@ class FastVideoPlayer extends HookWidget {
   final bool autoPlay;
   final Duration captionOffset;
   final Duration seekTo;
-  final bool showPlayerControls;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
   final Widget Function(double?)? placeholder;
@@ -36,7 +35,6 @@ class FastVideoPlayer extends HookWidget {
     this.autoPlay = false,
     this.captionOffset = Duration.zero,
     this.seekTo = Duration.zero,
-    this.showPlayerControls = true,
     this.onTap,
     this.strings = const FastVideoPlayerStrings(),
     this.autoDispose = false,
@@ -63,6 +61,11 @@ class FastVideoPlayer extends HookWidget {
       return (autoDispose) ? controller.dispose : null;
     }, const []);
 
+    void toggleVideoPlayerControlVisibility() {
+      final visible = controller.playerControlsVisibilityNotifier.value;
+      controller.playerControlsVisibilityNotifier.value = !visible;
+    }
+
     return Theme(
       data: theme.copyWith(
         iconTheme: theme.iconTheme.copyWith(
@@ -73,9 +76,7 @@ class FastVideoPlayer extends HookWidget {
         ),
       ),
       child: GestureDetector(
-        onTap: () {
-          if (onTap != null) onTap?.call();
-        },
+        onTap: onTap ?? toggleVideoPlayerControlVisibility,
         child: Stack(
           fit: StackFit.expand,
           clipBehavior: clipBehavior,
@@ -90,13 +91,12 @@ class FastVideoPlayer extends HookWidget {
                 child: VideoPlayer(controller),
               ),
             ),
-            if (isInitialized) ...[
-              if (showPlayerControls)
-                FastVideoPlayerControls(
-                  controller,
-                  strings,
-                ),
-            ] else ...[
+            if (isInitialized)
+              FastVideoPlayerControls(
+                controller,
+                strings,
+              )
+            else ...[
               if (placeholder != null)
                 ValueListenableBuilder<double?>(
                   valueListenable: controller.cacheProgressNotifier,

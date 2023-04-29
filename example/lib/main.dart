@@ -79,7 +79,7 @@ class MainApp extends StatelessWidget {
                 ),
                 FloatingActionButton.extended(
                   heroTag: 'File',
-                  label: const Text('Select File Video'),
+                  label: const Text('Select Video File'),
                   onPressed: () async {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {

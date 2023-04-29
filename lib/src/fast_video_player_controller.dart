@@ -50,8 +50,14 @@ class FastVideoPlayerController extends VideoPlayerController {
           httpHeaders: httpHeaders,
         );
 
+  /// Mark: manage cached videos.
   final cacheManager = DefaultCacheManager();
+
+  /// Mark: video download progress notifier when caching network video.
   final cacheProgressNotifier = ValueNotifier<double?>(null);
+
+  /// Mark: toggles the visibility of the video player controls.
+  final playerControlsVisibilityNotifier = ValueNotifier(true);
 
   /// Mark: cache network video.
   final bool cache;
@@ -120,6 +126,7 @@ class FastVideoPlayerController extends VideoPlayerController {
   @override
   Future<void> dispose() {
     cacheProgressNotifier.dispose();
+    playerControlsVisibilityNotifier.dispose();
     return super.dispose();
   }
 }

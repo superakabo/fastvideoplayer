@@ -1,14 +1,13 @@
 import 'dart:math';
 
+import 'package:fastvideoplayer/fast_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:video_player/video_player.dart';
 
-import 'fast_video_player_strings.dart';
-
 class FastVideoPlayerControls extends StatelessWidget {
   final FastVideoPlayerStrings strings;
-  final VideoPlayerController videoController;
+  final FastVideoPlayerController videoController;
 
   const FastVideoPlayerControls(
     this.videoController,
@@ -22,15 +21,26 @@ class FastVideoPlayerControls extends StatelessWidget {
       alignment: AlignmentDirectional.bottomCenter,
       child: Material(
         color: Colors.black.withOpacity(0.01),
-        child: Row(
-          children: [
-            _PlayPauseButton(videoController, strings),
-            _VolumeButton(videoController, strings),
-            _PlaybackTime(videoController),
-            const Spacer(),
-            _Replay10Button(videoController, strings),
-            _Forward10Button(videoController, strings),
-          ],
+        child: ValueListenableBuilder<bool>(
+          valueListenable: videoController.playerControlsVisibilityNotifier,
+          builder: (_, controlsVisible, child) {
+            return AnimatedCrossFade(
+              firstChild: child!,
+              secondChild: const SizedBox.shrink(),
+              duration: const Duration(milliseconds: 250),
+              crossFadeState: CrossFadeState.values[(controlsVisible ? 0 : 1)],
+            );
+          },
+          child: Row(
+            children: [
+              _PlayPauseButton(videoController, strings),
+              _VolumeButton(videoController, strings),
+              _PlaybackTime(videoController),
+              const Spacer(),
+              _Replay10Button(videoController, strings),
+              _Forward10Button(videoController, strings),
+            ],
+          ),
         ),
       ),
     );
@@ -38,7 +48,7 @@ class FastVideoPlayerControls extends StatelessWidget {
 }
 
 class _VolumeButton extends HookWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   final FastVideoPlayerStrings strings;
 
   const _VolumeButton(
@@ -63,7 +73,7 @@ class _VolumeButton extends HookWidget {
 }
 
 class _PlayPauseButton extends HookWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   final FastVideoPlayerStrings strings;
 
   const _PlayPauseButton(
@@ -87,7 +97,7 @@ class _PlayPauseButton extends HookWidget {
 }
 
 class _PlaybackTime extends StatelessWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   const _PlaybackTime(this.controller);
 
   @override
@@ -122,7 +132,7 @@ class _PlaybackTime extends StatelessWidget {
 }
 
 class _Replay10Button extends StatelessWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   final FastVideoPlayerStrings strings;
 
   const _Replay10Button(
@@ -146,7 +156,7 @@ class _Replay10Button extends StatelessWidget {
 }
 
 class _Forward10Button extends StatelessWidget {
-  final VideoPlayerController controller;
+  final FastVideoPlayerController controller;
   final FastVideoPlayerStrings strings;
 
   const _Forward10Button(
