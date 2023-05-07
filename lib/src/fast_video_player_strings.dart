@@ -5,6 +5,7 @@ class FastVideoPlayerStrings {
   final String replay10Seconds;
   final String mute;
   final String unmute;
+  final String semanticLabel;
 
   const FastVideoPlayerStrings({
     this.play = 'Play',
@@ -13,6 +14,7 @@ class FastVideoPlayerStrings {
     this.replay10Seconds = 'Replay 10 seconds',
     this.mute = 'Mute',
     this.unmute = 'Unmute',
+    this.semanticLabel = 'Tap to toggle the visibilty of video player controls.',
   });
 
   FastVideoPlayerStrings copyWith({
