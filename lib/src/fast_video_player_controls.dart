@@ -20,7 +20,7 @@ class FastVideoPlayerControls extends StatelessWidget {
     return Align(
       alignment: AlignmentDirectional.bottomCenter,
       child: Material(
-        color: Colors.black.withOpacity(0.01),
+        color: Colors.black.withOpacity(0.7),
         child: ValueListenableBuilder<bool>(
           valueListenable: videoController.playerControlsVisibilityNotifier,
           builder: (_, controlsVisible, child) {

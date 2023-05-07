@@ -32,6 +32,7 @@ class MainApp extends StatelessWidget {
                   autoPlay: false,
                   fit: BoxFit.cover,
                   autoDispose: true,
+                  loop: false,
                   controller: controller,
                   placeholder: (progress) {
                     return Center(
