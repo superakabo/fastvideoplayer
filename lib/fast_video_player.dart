@@ -19,7 +19,7 @@ class FastVideoPlayer extends HookWidget {
   final bool loop;
   final bool autoPlay;
   final Duration captionOffset;
-  final Duration seekTo;
+  final Duration? seekTo;
   final FastVideoPlayerStrings strings;
   final VoidCallback? onTap;
   final Widget Function(double?)? placeholder;
@@ -34,7 +34,7 @@ class FastVideoPlayer extends HookWidget {
     this.loop = true,
     this.autoPlay = false,
     this.captionOffset = Duration.zero,
-    this.seekTo = Duration.zero,
+    this.seekTo,
     this.onTap,
     this.strings = const FastVideoPlayerStrings(),
     this.autoDispose = false,
@@ -46,7 +46,7 @@ class FastVideoPlayer extends HookWidget {
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
-    await controller.seekTo(seekTo);
+    if (seekTo != null) await controller.seekTo(seekTo!);
     await controller.initialize();
     if (autoPlay) await controller.play();
   }
