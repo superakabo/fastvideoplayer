@@ -54,7 +54,6 @@ class FastVideoPlayer extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final isInitialized = useListenableSelector(controller, () => controller.value.isInitialized);
 
     useEffect(() {
