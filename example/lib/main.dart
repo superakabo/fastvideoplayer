@@ -85,7 +85,7 @@ class MainApp extends StatelessWidget {
                     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
                     if (file != null) {
                       setState(() {
-                        controller = FastVideoPlayerController.file(file.path);
+                        controller = FastVideoPlayerController.file(Uri.file(file.path).toString());
                       });
                     }
                   },

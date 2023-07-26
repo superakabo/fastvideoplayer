@@ -42,8 +42,8 @@ class FastVideoPlayerController extends VideoPlayerController {
     VideoPlayerOptions? videoPlayerOptions,
     Map<String, String> httpHeaders = const <String, String>{},
   })  : _dataSourceType = DataSourceType.network,
-        super.network(
-          _dataSource,
+        super.networkUrl(
+          Uri.parse(_dataSource),
           formatHint: formatHint,
           closedCaptionFile: closedCaptionFile,
           videoPlayerOptions: videoPlayerOptions,
@@ -122,7 +122,8 @@ class FastVideoPlayerController extends VideoPlayerController {
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
-    /// in instances where the controller is restored from a storage bucket or similar.
+    /// in instances where the controller is restored from cache or
+    /// the same controller is reused.
     if (cache && dataSource.startsWith('file')) {
       _dataSourceType = DataSourceType.file;
       return super.initialize();
