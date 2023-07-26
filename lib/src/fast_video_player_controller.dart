@@ -98,13 +98,15 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// Mark: Wait for the precaching to complete and set the cached file path
   /// as the new dataSource. Revert to the original dataSource if it is null.
   /// Initialize the controller to use the cached dataSource.
-  Future<void> _initializeCachedVideo(FileInfo fileInfo) {
+  Future<void> _initializeCachedVideo(FileInfo fileInfo) async {
+    print('before initialized: ${value.isInitialized}');
     final newDataSource = fileInfo.file.uri.toString();
     if (_dataSource != newDataSource) {
       _dataSource = newDataSource;
       _dataSourceType = DataSourceType.file;
     }
-    return super.initialize();
+    await super.initialize();
+    print('after initialized: ${value.isInitialized}');
   }
 
   /// Mark: Render the first frame of the video while precaching the remote video.
