@@ -99,7 +99,7 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// as the new dataSource. Revert to the original dataSource if it is null.
   /// Initialize the controller to use the cached dataSource.
   Future<void> _initializeCachedVideo(FileInfo fileInfo) {
-    _dataSource = Uri.file(fileInfo.file.absolute.path).toString();
+    _dataSource = fileInfo.file.uri.toString();
     _dataSourceType = DataSourceType.file;
     return super.initialize();
   }
