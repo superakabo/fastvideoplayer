@@ -117,18 +117,25 @@ class FastVideoPlayerController extends VideoPlayerController {
   Future<void> initialize() async {
     // Mark: first check and use cached file path as the dataSource if it exists.
     if (cache && dataSource.startsWith('http')) {
+      debugPrint('method A - if');
       final fileInfo = await cacheManager.getFileFromCache(dataSource);
       return (fileInfo == null) ? _precacheAndRenderFirstFrame() : _initializeCachedVideo(fileInfo);
+    } else {
+      debugPrint('method A - else');
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
     /// in instances where the controller is restored from cache or
     /// the same controller is reused.
     if (cache && dataSource.startsWith('file')) {
+      debugPrint('method B - if');
       _dataSourceType = DataSourceType.file;
       return super.initialize();
+    } else {
+      debugPrint('method B - else');
     }
 
+    debugPrint('method C - default');
     return super.initialize();
   }
 
