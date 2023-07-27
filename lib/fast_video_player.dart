@@ -56,6 +56,8 @@ class FastVideoPlayer extends HookWidget {
     final theme = Theme.of(context);
     final isInitialized = useListenableSelector(controller, () => controller.value.isInitialized);
 
+    /// Mark: widget lifecycle.
+    /// initiate and dispose video player controller.
     useEffect(() {
       _initiateController();
       return (autoDispose) ? controller.dispose : null;

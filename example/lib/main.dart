@@ -29,14 +29,14 @@ class MainApp extends StatelessWidget {
                 aspectRatio: 1,
                 child: FastVideoPlayer(
                   key: UniqueKey(),
-                  autoPlay: false,
+                  autoPlay: true,
                   fit: BoxFit.cover,
                   autoDispose: true,
                   loop: false,
                   controller: controller,
                   placeholder: (progress) {
                     return Center(
-                      child: CircularProgressIndicator.adaptive(
+                      child: CircularProgressIndicator(
                         backgroundColor: Colors.white12,
                         value: progress,
                       ),

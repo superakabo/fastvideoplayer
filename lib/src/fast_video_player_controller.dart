@@ -76,7 +76,11 @@ class FastVideoPlayerController extends VideoPlayerController {
   DataSourceType get dataSourceType => _dataSourceType;
   DataSourceType _dataSourceType;
 
-  void _cacheVideo() {
+  final _cacheCompleter = Completer<FileInfo>();
+
+  /// Mark: download and cache video while
+  /// updating the download progress notifier
+  Future<FileInfo> _downloadVideo() {
     final stream = cacheManager.getFileStream(
       dataSource,
       headers: httpHeaders,
@@ -86,49 +90,46 @@ class FastVideoPlayerController extends VideoPlayerController {
     _downloadStream = stream.listen((response) {
       if (response is FileInfo) {
         _downloadStream?.cancel();
-        _initializeCachedVideo(response);
+        _cacheCompleter.complete(response);
       }
 
       if (response is DownloadProgress) {
         cacheProgressNotifier.value = response.progress;
       }
     });
+
+    return _cacheCompleter.future;
   }
 
   /// Mark: Wait for the precaching to complete and set the cached file path
   /// as the new dataSource. Revert to the original dataSource if it is null.
   /// Initialize the controller to use the cached dataSource.
-  Future<void> _initializeCachedVideo(FileInfo fileInfo) async {
-    _dataSource = fileInfo.file.uri.toString();
+  Future<void> _initializeCachedVideo(FileInfo? fileInfo) async {
+    await super.initialize();
+
+    value = value.copyWith(
+      duration: Duration.zero,
+      isPlaying: false,
+      isInitialized: false,
+    );
+
+    if (fileInfo == null) {
+      final newFileInfo = await _downloadVideo();
+      _dataSource = newFileInfo.file.uri.toString();
+    } else {
+      _dataSource = fileInfo.file.uri.toString();
+    }
+
     _dataSourceType = DataSourceType.file;
-    await super.initialize();
-
-    /// Mark: hack to force and render first video frame
-    final volume = value.volume;
-    await setVolume(0);
-    await play();
-    await pause();
-    await setVolume(volume);
-
-    return;
-  }
-
-  /// Mark: Render the first frame of the video while precaching the remote video.
-  /// Prevent video from being played until the precache is complete.
-  /// This also ensures that the cached video is used after the caching.
-  Future<void> _precacheAndRenderFirstFrame() async {
-    _cacheVideo();
-    await super.initialize();
-    value = value.copyWith(duration: Duration.zero, isInitialized: false);
-    return;
+    return super.initialize();
   }
 
   @override
   Future<void> initialize() async {
-    // Mark: first check and use cached file path as the dataSource if it exists.
+    /// Mark: first check and use cached video path as the dataSource if it exists.
     if (cache && dataSource.startsWith('http')) {
       final fileInfo = await cacheManager.getFileFromCache(dataSource);
-      return (fileInfo == null) ? _precacheAndRenderFirstFrame() : _initializeCachedVideo(fileInfo);
+      return _initializeCachedVideo(fileInfo);
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
