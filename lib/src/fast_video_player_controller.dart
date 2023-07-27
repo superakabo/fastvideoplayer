@@ -104,8 +104,11 @@ class FastVideoPlayerController extends VideoPlayerController {
     await super.initialize();
 
     /// Mark: hack to force and render first video frame
+    final volume = value.volume;
+    await setVolume(0);
     await play();
     await pause();
+    await setVolume(volume);
 
     return;
   }
