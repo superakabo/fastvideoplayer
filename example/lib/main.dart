@@ -127,14 +127,6 @@ class _MultipleVideosState extends State<MultipleVideos> {
   final controllers = <FastVideoPlayerController>[
     ...[
       /// Add your network video urls here.
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p0lMqlf1clQ1NmZGjUUg2.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p587.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p5SKV9HTYv8wezeRmSIXh.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p5owyENRANLG3Al5uJitC.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p648.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p654.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p661.mp4',
-      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p744.mp4',
     ].map((e) => FastVideoPlayerController.network(e, cache: true)),
   ];
 
