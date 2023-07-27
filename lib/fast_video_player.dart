@@ -48,7 +48,13 @@ class FastVideoPlayer extends HookWidget {
     await controller.setLooping(loop);
     if (seekTo != null) await controller.seekTo(seekTo!);
     if (!controller.value.isInitialized) await controller.initialize();
-    if (autoPlay && !controller.value.isPlaying) await controller.play();
+
+    if (autoPlay) {
+      if (controller.cache && controller.dataSourceType == DataSourceType.file) {
+        return await controller.play();
+      }
+      return await controller.play();
+    }
   }
 
   @override
