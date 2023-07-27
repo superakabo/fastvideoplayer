@@ -99,18 +99,20 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// as the new dataSource. Revert to the original dataSource if it is null.
   /// Initialize the controller to use the cached dataSource.
   Future<void> _initializeCachedVideo(FileInfo fileInfo) async {
-    print('before initialized: ${value.isInitialized}');
-    final newDataSource = fileInfo.file.uri.toString();
-    if (_dataSource != newDataSource) {
-      _dataSource = newDataSource;
-      _dataSourceType = DataSourceType.file;
-    }
+    _dataSource = fileInfo.file.uri.toString();
+    _dataSourceType = DataSourceType.file;
     await super.initialize();
-    print('after initialized: ${value.isInitialized}');
+
+    /// Mark: hack to force and render first video frame
+    await play();
+    await pause();
+
+    return;
   }
 
   /// Mark: Render the first frame of the video while precaching the remote video.
   /// Prevent video from being played until the precache is complete.
+  /// This also ensures that the cached video is used after the caching.
   Future<void> _precacheAndRenderFirstFrame() async {
     _cacheVideo();
     await super.initialize();
@@ -123,24 +125,17 @@ class FastVideoPlayerController extends VideoPlayerController {
     // Mark: first check and use cached file path as the dataSource if it exists.
     if (cache && dataSource.startsWith('http')) {
       final fileInfo = await cacheManager.getFileFromCache(dataSource);
-      debugPrint('method A - if || ${fileInfo?.file.path}');
       return (fileInfo == null) ? _precacheAndRenderFirstFrame() : _initializeCachedVideo(fileInfo);
-    } else {
-      debugPrint('method A - else');
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
     /// in instances where the controller is restored from cache or
     /// the same controller is reused.
     if (cache && dataSource.startsWith('file')) {
-      debugPrint('method B - if');
       _dataSourceType = DataSourceType.file;
       return super.initialize();
-    } else {
-      debugPrint('method B - else');
     }
 
-    debugPrint('method C - default');
     return super.initialize();
   }
 

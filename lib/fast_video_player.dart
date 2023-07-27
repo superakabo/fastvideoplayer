@@ -59,7 +59,7 @@ class FastVideoPlayer extends HookWidget {
     useEffect(() {
       _initiateController();
       return (autoDispose) ? controller.dispose : null;
-    }, const []);
+    }, [controller]);
 
     void toggleVideoPlayerControlVisibility() {
       final visible = controller.playerControlsVisibilityNotifier.value;

@@ -98,11 +98,100 @@ class MainApp extends StatelessWidget {
                     debugPrint('Cached videos cleared');
                   },
                 ),
+                FloatingActionButton.extended(
+                  heroTag: 'Multiple Videos',
+                  label: const Text('Multiple Videos'),
+                  onPressed: () async {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const MultipleVideos()),
+                    );
+                  },
+                ),
               ],
             ),
           );
         },
       ),
+    );
+  }
+}
+
+class MultipleVideos extends StatefulWidget {
+  const MultipleVideos({super.key});
+
+  @override
+  State<MultipleVideos> createState() => _MultipleVideosState();
+}
+
+class _MultipleVideosState extends State<MultipleVideos> {
+  final controllers = <FastVideoPlayerController>[
+    ...[
+      /// Add your network video urls here.
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p0lMqlf1clQ1NmZGjUUg2.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p587.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p5SKV9HTYv8wezeRmSIXh.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p5owyENRANLG3Al5uJitC.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p648.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p654.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p661.mp4',
+      'https://storage.googleapis.com/whatsad-84167.appspot.com/ads/p744.mp4',
+    ].map((e) => FastVideoPlayerController.network(e, cache: true)),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Multiple Videos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.remove_circle_outline),
+            onPressed: () {
+              final controller = controllers.removeAt(0);
+              controller.dispose();
+              setState(() {});
+            },
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        itemCount: controllers.length,
+        itemBuilder: (context, index) {
+          return AspectRatio(
+            aspectRatio: 1,
+            child: FastVideoPlayer(
+              autoPlay: false,
+              fit: BoxFit.cover,
+              loop: false,
+              controller: controllers[index],
+              placeholder: (progress) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.white12,
+                    value: progress,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+
+      /// Mark: uncomment to select videos from your photo library/gallery
+      ///
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: FloatingActionButton.extended(
+      //   label: const Text('Add Video'),
+      //   onPressed: () async {
+      //     final file = await ImagePicker().pickVideo(source: ImageSource.gallery);
+      //     if (file != null) {
+      //       final uri = Uri.file(file.path);
+      //       controllers.add(FastVideoPlayerController.file(uri.toString()));
+      //       setState(() {});
+      //       print('path: ${uri.toString()}');
+      //     }
+      //   },
+      // ),
     );
   }
 }
