@@ -24,6 +24,7 @@ class FastVideoPlayer extends HookWidget {
   final VoidCallback? onTap;
   final Widget Function(double?)? placeholder;
   final bool autoDispose;
+  final bool hidePlayerControls;
 
   const FastVideoPlayer({
     required this.controller,
@@ -38,6 +39,7 @@ class FastVideoPlayer extends HookWidget {
     this.onTap,
     this.strings = const FastVideoPlayerStrings(),
     this.autoDispose = false,
+    this.hidePlayerControls = false,
     this.placeholder,
     super.key,
   });
@@ -64,8 +66,10 @@ class FastVideoPlayer extends HookWidget {
     }, [controller]);
 
     void toggleVideoPlayerControlVisibility() {
-      final visible = controller.playerControlsVisibilityNotifier.value;
-      controller.playerControlsVisibilityNotifier.value = !visible;
+      if (!hidePlayerControls) {
+        final visible = controller.playerControlsVisibilityNotifier.value;
+        controller.playerControlsVisibilityNotifier.value = !visible;
+      }
     }
 
     return Theme(
@@ -95,7 +99,7 @@ class FastVideoPlayer extends HookWidget {
                   child: VideoPlayer(controller),
                 ),
               ),
-              if (isInitialized)
+              if (isInitialized && !hidePlayerControls)
                 FastVideoPlayerControls(
                   controller,
                   strings,
