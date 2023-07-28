@@ -65,11 +65,12 @@ class FastVideoPlayer extends HookWidget {
       return (autoDispose) ? controller.dispose : null;
     }, [controller]);
 
-    void toggleVideoPlayerControlVisibility() {
-      if (!hidePlayerControls) {
+    VoidCallback? toggleVideoPlayerControlVisibility() {
+      if (hidePlayerControls) return null;
+      return () {
         final visible = controller.playerControlsVisibilityNotifier.value;
         controller.playerControlsVisibilityNotifier.value = !visible;
-      }
+      };
     }
 
     return Theme(
