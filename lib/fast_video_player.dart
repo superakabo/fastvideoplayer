@@ -49,14 +49,13 @@ class FastVideoPlayer extends HookWidget {
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
     if (seekTo != null) await controller.seekTo(seekTo!);
-    if (!controller.value.isInitialized) await controller.initialize();
+    if (!controller.canPlayNotifier.value) await controller.initialize();
     if (autoPlay) await controller.play();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isInitialized = useListenableSelector(controller, () => controller.value.isInitialized);
 
     /// Mark: widget lifecycle.
     /// initiate and dispose video player controller.
@@ -88,36 +87,41 @@ class FastVideoPlayer extends HookWidget {
           ignoring: (onTap == null && hidePlayerControls),
           child: GestureDetector(
             onTap: onTap ?? toggleVideoPlayerControlVisibility,
-            child: Stack(
-              fit: StackFit.expand,
-              clipBehavior: clipBehavior,
-              children: [
-                FittedBox(
-                  fit: fit,
-                  alignment: alignment,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: controller.canPlayNotifier,
+              builder: (context, canPlay, __) {
+                return Stack(
+                  fit: StackFit.expand,
                   clipBehavior: clipBehavior,
-                  child: SizedBox(
-                    width: controller.value.size.width,
-                    height: controller.value.size.height,
-                    child: VideoPlayer(controller),
-                  ),
-                ),
-                if (isInitialized) ...[
-                  if (!hidePlayerControls)
-                    FastVideoPlayerControls(
-                      controller,
-                      strings,
-                    )
-                ] else ...[
-                  if (placeholder != null)
-                    ValueListenableBuilder<double?>(
-                      valueListenable: controller.cacheProgressNotifier,
-                      builder: (_, progress, __) {
-                        return placeholder!(progress);
-                      },
+                  children: [
+                    FittedBox(
+                      fit: fit,
+                      alignment: alignment,
+                      clipBehavior: clipBehavior,
+                      child: SizedBox(
+                        width: controller.value.size.width,
+                        height: controller.value.size.height,
+                        child: VideoPlayer(controller),
+                      ),
                     ),
-                ]
-              ],
+                    if (canPlay) ...[
+                      if (!hidePlayerControls)
+                        FastVideoPlayerControls(
+                          controller,
+                          strings,
+                        )
+                    ] else ...[
+                      if (placeholder != null)
+                        ValueListenableBuilder<double?>(
+                          valueListenable: controller.cacheProgressNotifier,
+                          builder: (_, progress, __) {
+                            return placeholder!(progress);
+                          },
+                        ),
+                    ]
+                  ],
+                );
+              },
             ),
           ),
         ),

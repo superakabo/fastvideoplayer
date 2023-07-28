@@ -50,6 +50,10 @@ class FastVideoPlayerController extends VideoPlayerController {
           httpHeaders: httpHeaders,
         );
 
+  /// Mark: Indicates whether or not the video has been loaded and is ready to play.
+  /// Use this in place of [value.isInitialized].
+  final canPlayNotifier = ValueNotifier(false);
+
   /// Mark: manage cached videos.
   final cacheManager = DefaultCacheManager();
 
@@ -111,11 +115,7 @@ class FastVideoPlayerController extends VideoPlayerController {
       /// Mark: Render the first video frame,
       /// unset initialization status and video duration
       super.initialize().whenComplete(() {
-        value = value.copyWith(
-          duration: Duration.zero,
-          isPlaying: false,
-          isInitialized: false,
-        );
+        value = value.copyWith(duration: Duration.zero);
       });
 
       _fileInfo = await _downloadVideo();
@@ -125,26 +125,32 @@ class FastVideoPlayerController extends VideoPlayerController {
     }
 
     _dataSourceType = DataSourceType.file;
-    return super.initialize();
+    return await super.initialize();
   }
 
   @override
   Future<void> initialize() async {
     /// Mark: first check and use cached video path as the dataSource if it exists.
     if (cache && dataSource.startsWith('http')) {
+      canPlayNotifier.value = false;
       _fileInfo = await cacheManager.getFileFromCache(dataSource);
-      return _initializeCachedVideo();
+      await _initializeCachedVideo();
+      canPlayNotifier.value = true;
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
     /// in instances where the controller is restored from cache or
     /// the same controller is reused.
-    if (cache && dataSource.startsWith('file')) {
+    else if (cache && dataSource.startsWith('file')) {
+      canPlayNotifier.value = false;
       _dataSourceType = DataSourceType.file;
-      return super.initialize();
+      await super.initialize();
+      canPlayNotifier.value = true;
     }
 
-    return super.initialize();
+    canPlayNotifier.value = false;
+    await super.initialize();
+    canPlayNotifier.value = true;
   }
 
   /// Mark: Deny playback for network videos with cache option enabled
@@ -162,6 +168,9 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   @override
   Future<void> dispose() {
+    _fileInfo = null;
+    _downloadStream = null;
+    canPlayNotifier.dispose();
     cacheProgressNotifier.dispose();
     playerControlsVisibilityNotifier.dispose();
     return super.dispose();
