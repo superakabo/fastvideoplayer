@@ -11,7 +11,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var controller = FastVideoPlayerController.asset('assets/videos/file_example_MP4_480_1_5MG.mp4');
+    var controller = FastVideoPlayerController.network(
+      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2Film8sQwP8jm3n1jsO11C%2Film8sQwP8jm3n1jsO11C-0.mp4?alt=media&token=897768b7-5952-4987-978a-f823cf3795a4',
+      cache: true,
+    );
+    // FastVideoPlayerController.asset('assets/videos/file_example_MP4_480_1_5MG.mp4');
 
     return MaterialApp(
       theme: ThemeData.from(
@@ -22,6 +26,13 @@ class MainApp extends StatelessWidget {
       home: StatefulBuilder(
         builder: (context, StateSetter setState) {
           return Scaffold(
+            appBar: AppBar(
+              leading: BackButton(
+                onPressed: () {
+                  controller.play();
+                },
+              ),
+            ),
             backgroundColor: Colors.grey.shade700,
             body: Align(
               alignment: Alignment.topCenter,
@@ -152,7 +163,7 @@ class _MultipleVideosState extends State<MultipleVideos> {
           return AspectRatio(
             aspectRatio: 1,
             child: FastVideoPlayer(
-              autoPlay: false,
+              autoPlay: true,
               fit: BoxFit.cover,
               loop: false,
               controller: controllers[index],
