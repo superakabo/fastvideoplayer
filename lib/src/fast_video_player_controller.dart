@@ -69,6 +69,13 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// Mark: cached video file info.
   FileInfo? _fileInfo;
 
+  /// Mark: used to determine if user attempted to
+  /// play video before it was done caching.
+  /// This will allow the video to be played once the caching
+  /// is complete. In a sense, it mimicks the auto play behaviour
+  /// through the use of a controller.
+  bool _prematureCachePlayback = false;
+
   /// Mark: Reference object for the cache download stream.
   /// Used to dispose the stream subscription.
   StreamSubscription<FileResponse>? _downloadStream;
@@ -79,6 +86,7 @@ class FastVideoPlayerController extends VideoPlayerController {
   String get dataSource => _dataSource;
   String _dataSource;
 
+  /// Mark: The place from which the video is fetched or loaded from.
   @override
   DataSourceType get dataSourceType => _dataSourceType;
   DataSourceType _dataSourceType;
@@ -136,6 +144,7 @@ class FastVideoPlayerController extends VideoPlayerController {
       _fileInfo = await cacheManager.getFileFromCache(dataSource);
       await _initializeCachedVideo();
       canPlayNotifier.value = true;
+      if (_prematureCachePlayback) play();
     }
 
     /// Mark: If [cache = true] and [dataSource starts with file://]
@@ -146,6 +155,7 @@ class FastVideoPlayerController extends VideoPlayerController {
       _dataSourceType = DataSourceType.file;
       await super.initialize();
       canPlayNotifier.value = true;
+      if (_prematureCachePlayback) play();
     }
 
     canPlayNotifier.value = false;
@@ -159,7 +169,10 @@ class FastVideoPlayerController extends VideoPlayerController {
   Future<void> play() async {
     if (cache) {
       if (_fileInfo != null) {
+        _prematureCachePlayback = false;
         return super.play();
+      } else {
+        _prematureCachePlayback = true;
       }
     } else {
       return super.play();
