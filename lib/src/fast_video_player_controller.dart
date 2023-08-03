@@ -155,7 +155,6 @@ class FastVideoPlayerController extends VideoPlayerController {
       _dataSourceType = DataSourceType.file;
       await super.initialize();
       canPlayNotifier.value = true;
-      if (_prematureCachePlayback) play();
     }
 
     canPlayNotifier.value = false;
@@ -167,15 +166,11 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// until the video is downloaded and cached.
   @override
   Future<void> play() async {
-    if (cache) {
-      if (_fileInfo != null) {
-        _prematureCachePlayback = false;
-        return super.play();
-      } else {
-        _prematureCachePlayback = true;
-      }
-    } else {
+    if (canPlayNotifier.value) {
+      _prematureCachePlayback = false;
       return super.play();
+    } else {
+      _prematureCachePlayback = true;
     }
   }
 
