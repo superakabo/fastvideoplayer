@@ -63,12 +63,12 @@ class FastVideoPlayer extends HookWidget {
       return (autoDispose) ? controller.dispose : null;
     }, const []);
 
-    VoidCallback? toggleVideoPlayerControlVisibility() {
+    void Function()? onVideoPlayerTapped() {
+      if (onTap != null) return onTap;
       if (hidePlayerControls) return null;
-      return () {
-        final visible = controller.playerControlsVisibilityNotifier.value;
-        controller.playerControlsVisibilityNotifier.value = !visible;
-      };
+      final visible = controller.playerControlsVisibilityNotifier.value;
+      controller.playerControlsVisibilityNotifier.value = !visible;
+      return null;
     }
 
     return Theme(
@@ -85,7 +85,7 @@ class FastVideoPlayer extends HookWidget {
         child: IgnorePointer(
           ignoring: (onTap == null && hidePlayerControls),
           child: GestureDetector(
-            onTap: onTap ?? toggleVideoPlayerControlVisibility,
+            onTap: onVideoPlayerTapped,
             child: FutureBuilder<bool>(
               initialData: false,
               future: _initiateController(),
