@@ -126,13 +126,6 @@ class MultipleVideos extends StatefulWidget {
 class _MultipleVideosState extends State<MultipleVideos> {
   final controllers = <FastVideoPlayerController>[
     ...[
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k0',
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k1',
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k2',
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k3',
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k4',
-      'https://firebasestorage.googleapis.com/v0/b/fastad-a7f04.appspot.com/o/Images%2FAdverts%2FBbMzNcTMzV1mwbMDElec%2FBbMzNcTMzV1mwbMDElec-0.mp4?alt=media&token=5fb5be37-2eb1-479c-8754-a2bbc67dc614&k5',
-
       /// Add your network video urls here.
     ].map((e) => FastVideoPlayerController.network(e, cache: true)),
   ];
@@ -149,7 +142,6 @@ class _MultipleVideosState extends State<MultipleVideos> {
               if (controllers.isNotEmpty) {
                 final controller = controllers.removeAt(0);
                 controller.dispose();
-                print(controllers.length);
                 setState(() {});
               }
             },

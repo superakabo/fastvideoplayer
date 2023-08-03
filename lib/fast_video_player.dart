@@ -91,7 +91,6 @@ class FastVideoPlayer extends HookWidget {
               future: _initiateController(),
               builder: (context, snapshot) {
                 final canPlay = snapshot.data;
-                print('log: ${controller.dataSource} || ${controller.dataSourceType}');
                 return Stack(
                   fit: StackFit.expand,
                   clipBehavior: clipBehavior,

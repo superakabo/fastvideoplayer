@@ -153,6 +153,7 @@ class FastVideoPlayerController extends VideoPlayerController {
   }
 
   Future<void> autoPlay() async {
+    if (_autoPlay) await play();
     _autoPlay = true;
   }
 
