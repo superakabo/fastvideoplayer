@@ -50,12 +50,8 @@ class FastVideoPlayerController extends VideoPlayerController {
           httpHeaders: httpHeaders,
         );
 
-  /// Mark: Indicates whether or not the video has been loaded and is ready to play.
-  /// Use this in place of [value.isInitialized].
-  final canPlayNotifier = ValueNotifier(false);
-
   /// Mark: manage cached videos.
-  final cacheManager = DefaultCacheManager();
+  final cacher = DefaultCacheManager();
 
   /// Mark: video download progress notifier when caching network video.
   final cacheProgressNotifier = ValueNotifier<double?>(null);
@@ -66,15 +62,14 @@ class FastVideoPlayerController extends VideoPlayerController {
   /// Mark: cache network video.
   final bool cache;
 
-  /// Mark: cached video file info.
-  FileInfo? _fileInfo;
+  /// Mark: use to check if video has completed caching and can be played.
+  final isReady = ValueNotifier(false);
 
-  /// Mark: used to determine if user attempted to
-  /// play video before it was done caching.
-  /// This will allow the video to be played once the caching
-  /// is complete. In a sense, it mimicks the auto play behaviour
-  /// through the use of a controller.
-  bool _prematureCachePlayback = false;
+  /// Mark: video download completer
+  final _completer = Completer<FileInfo?>();
+
+  /// Mark: automatically play video after the controller is initialized.
+  bool _autoPlay = false;
 
   /// Mark: Reference object for the cache download stream.
   /// Used to dispose the stream subscription.
@@ -93,10 +88,8 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   /// Mark: download and cache video while
   /// updating the download progress notifier
-  Future<FileInfo> _downloadVideo() {
-    final completer = Completer<FileInfo>();
-
-    final stream = cacheManager.getFileStream(
+  Future<FileInfo?> _downloadVideo() {
+    final stream = cacher.getFileStream(
       dataSource,
       headers: httpHeaders,
       withProgress: true,
@@ -105,7 +98,9 @@ class FastVideoPlayerController extends VideoPlayerController {
     _downloadStream = stream.listen((response) {
       if (response is FileInfo) {
         _downloadStream?.cancel();
-        completer.complete(response);
+        if (!_completer.isCompleted) {
+          _completer.complete(response);
+        }
       }
 
       if (response is DownloadProgress) {
@@ -113,23 +108,24 @@ class FastVideoPlayerController extends VideoPlayerController {
       }
     });
 
-    return completer.future;
+    return _completer.future;
   }
 
   /// Mark: Wait for the precaching to complete if the video is not cached.
   /// The new cached video path is set as the new dataSource.
-  Future<void> _initializeCachedVideo() async {
-    if (_fileInfo == null) {
-      /// Mark: Render the first video frame,
-      /// unset initialization status and video duration
-      super.initialize().whenComplete(() {
-        value = value.copyWith(duration: Duration.zero);
-      });
+  Future<void> _initializeCachedVideo(FileInfo? fileInfo) async {
+    if (fileInfo == null) {
+      // Mark: Render the first video frame.
+      await super.initialize();
 
-      _fileInfo = await _downloadVideo();
-      _dataSource = _fileInfo!.file.uri.toString();
+      // Mark: re-initialize controller to play from a file.
+      value = value.copyWith(duration: Duration.zero);
+      final newFileInfo = await _downloadVideo();
+      if (newFileInfo != null) {
+        _dataSource = newFileInfo.file.uri.toString();
+      }
     } else {
-      _dataSource = _fileInfo!.file.uri.toString();
+      _dataSource = fileInfo.file.uri.toString();
     }
 
     _dataSourceType = DataSourceType.file;
@@ -138,49 +134,43 @@ class FastVideoPlayerController extends VideoPlayerController {
 
   @override
   Future<void> initialize() async {
-    /// Mark: first check and use cached video path as the dataSource if it exists.
     if (cache && dataSource.startsWith('http')) {
-      canPlayNotifier.value = false;
-      _fileInfo = await cacheManager.getFileFromCache(dataSource);
-      await _initializeCachedVideo();
-      canPlayNotifier.value = true;
-      if (_prematureCachePlayback) play();
+      final fileInfo = await cacher.getFileFromCache(dataSource);
+      await _initializeCachedVideo(fileInfo);
     }
 
-    /// Mark: If [cache = true] and [dataSource starts with file://]
-    /// in instances where the controller is restored from cache or
-    /// the same controller is reused.
-    else if (cache && dataSource.startsWith('file')) {
-      canPlayNotifier.value = false;
+    if (cache && dataSource.startsWith('file')) {
       _dataSourceType = DataSourceType.file;
       await super.initialize();
-      canPlayNotifier.value = true;
-      if (_prematureCachePlayback) play();
     }
 
-    canPlayNotifier.value = false;
-    await super.initialize();
-    canPlayNotifier.value = true;
-    if (_prematureCachePlayback) play();
+    if (!cache) {
+      await super.initialize();
+    }
+
+    isReady.value = true;
+    if (_autoPlay) await play();
+  }
+
+  Future<void> autoPlay() async {
+    _autoPlay = true;
   }
 
   /// Mark: Deny playback for network videos with cache option enabled
   /// until the video is downloaded and cached.
   @override
   Future<void> play() async {
-    if (canPlayNotifier.value) {
-      _prematureCachePlayback = false;
+    if (isReady.value) {
       return super.play();
-    } else {
-      _prematureCachePlayback = true;
     }
   }
 
   @override
   Future<void> dispose() {
-    _fileInfo = null;
+    _downloadStream?.cancel();
     _downloadStream = null;
-    canPlayNotifier.dispose();
+    _completer.complete(null);
+    isReady.dispose();
     cacheProgressNotifier.dispose();
     playerControlsVisibilityNotifier.dispose();
     return super.dispose();

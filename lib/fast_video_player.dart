@@ -44,25 +44,24 @@ class FastVideoPlayer extends HookWidget {
     super.key,
   });
 
-  Future<void> _initiateController() async {
+  Future<bool> _initiateController() async {
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
     if (seekTo != null) await controller.seekTo(seekTo!);
-    if (!controller.canPlayNotifier.value) await controller.initialize();
+    if (!controller.value.isInitialized) await controller.initialize();
     if (autoPlay) await controller.play();
+    return controller.isReady.value;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    /// Mark: widget lifecycle.
-    /// initiate and dispose video player controller.
+    /// Mark: auto dispose controller
     useEffect(() {
-      _initiateController();
       return (autoDispose) ? controller.dispose : null;
-    }, [controller]);
+    }, const []);
 
     VoidCallback? toggleVideoPlayerControlVisibility() {
       if (hidePlayerControls) return null;
@@ -87,9 +86,12 @@ class FastVideoPlayer extends HookWidget {
           ignoring: (onTap == null && hidePlayerControls),
           child: GestureDetector(
             onTap: onTap ?? toggleVideoPlayerControlVisibility,
-            child: ValueListenableBuilder<bool>(
-              valueListenable: controller.canPlayNotifier,
-              builder: (context, canPlay, __) {
+            child: FutureBuilder<bool>(
+              initialData: false,
+              future: _initiateController(),
+              builder: (context, snapshot) {
+                final canPlay = snapshot.data;
+                print('log: ${controller.dataSource} || ${controller.dataSourceType}');
                 return Stack(
                   fit: StackFit.expand,
                   clipBehavior: clipBehavior,
@@ -104,7 +106,7 @@ class FastVideoPlayer extends HookWidget {
                         child: VideoPlayer(controller),
                       ),
                     ),
-                    if (canPlay) ...[
+                    if (canPlay ?? true) ...[
                       if (!hidePlayerControls)
                         FastVideoPlayerControls(
                           controller,
