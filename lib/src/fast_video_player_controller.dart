@@ -155,11 +155,13 @@ class FastVideoPlayerController extends VideoPlayerController {
       _dataSourceType = DataSourceType.file;
       await super.initialize();
       canPlayNotifier.value = true;
+      if (_prematureCachePlayback) play();
     }
 
     canPlayNotifier.value = false;
     await super.initialize();
     canPlayNotifier.value = true;
+    if (_prematureCachePlayback) play();
   }
 
   /// Mark: Deny playback for network videos with cache option enabled
