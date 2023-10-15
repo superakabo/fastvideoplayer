@@ -44,13 +44,13 @@ class FastVideoPlayer extends HookWidget {
     super.key,
   });
 
-  Future<bool> _initiateController() async {
+  Future<bool> _initiateController(BuildContext context) async {
     controller.setCaptionOffset(captionOffset);
     await controller.setVolume(mute ? 0 : 1);
     await controller.setLooping(loop);
     if (seekTo != null) await controller.seekTo(seekTo!);
     if (!controller.value.isInitialized) await controller.initialize();
-    if (autoPlay) await controller.play();
+    if (autoPlay && context.mounted) await controller.play();
     return controller.isReady.value;
   }
 
@@ -88,7 +88,7 @@ class FastVideoPlayer extends HookWidget {
             onTap: onVideoPlayerTapped,
             child: FutureBuilder<bool>(
               initialData: false,
-              future: _initiateController(),
+              future: _initiateController(context),
               builder: (context, snapshot) {
                 final canPlay = snapshot.data;
                 return Stack(
